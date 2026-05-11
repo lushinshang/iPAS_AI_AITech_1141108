@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 46 題解析：漂移監測機制</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 46 題解析：漂移監測機制</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q45.html">上一題</a><a href="q47.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q46.png" alt="第 46 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-46-題解析漂移監測機制">第 46 題解析：漂移監測機制</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(A) 建立即時的資料漂移（Data Drift）與概念漂移（Concept
+Drift）監測機制</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某企業的 AI 模型已部署於線上服務環境中，用於即時預測顧客流失機率。近期團隊注意到模型預測準
+ 確率逐漸下降，但系統運作正常且未出現錯誤訊息。經分析發現，近期輸入資料的分布與模型訓練資
+ 料相比出現顯著偏移。若要在 MLOps 流程中主動偵測並預警此類問題，最應採用下列哪項措施？
+     a. 建立即時的資料漂移（Data Drift）與概念漂移（Concept Drift）監測機制
+     b. 將模型轉換為量化版本以降低延遲
+     c. 增加模型超參數調整次數以強化適應性
+     d. 使用固定隨機種子（Random Seed）確保訓練穩定</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>漂移監測機制</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>模型服務正常不代表模型判斷仍然準。資料世界改變時，準確率會慢慢掉。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某企業的AI模型已部署於線上服務環境中，用於即時預測顧客流失機率。近期團隊注意到模型預測準確率逐漸下降，但系統運作正常且未出現錯誤訊息。經分析發現，近期輸入資料的分布與模型訓練資料相比出現顯著偏移。若要在MLOps流程中主動偵測並預警此類問題，最應採用下列哪項措施？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 66%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「漂移監測機制」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>建立即時的資料漂移（Data Drift）與概念漂移（Concept
+Drift）監測機制</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>模型準確率下降但系統正常，優先監測 Data Drift 與 Concept
+Drift。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-a">解析：為什麼答案是 A</h2>
+<p>Data Drift 看輸入資料分佈變了沒；Concept Drift
+看輸入和答案的關係變了沒。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>漂移監測機制</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>A</strong>，也就是：<strong>建立即時的資料漂移（Data
+Drift）與概念漂移（Concept Drift）監測機制</strong>。</li>
+</ol>
+<p>這正是 <strong>A</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>量化模型、固定隨機種子、加超參數搜尋都不是上線後主動監測漂移的核心措施。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-對建立即時的資料漂移data-drift與概念漂移concept-drif">A
+對：建立即時的資料漂移（Data Drift）與概念漂移（Concept Drif…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>建立即時的資料漂移（Data
+Drift）與概念漂移（Concept Drift）監測機制</strong>。</p>
+<p>它正好對到題目要求的「漂移監測機制」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="b-錯將模型轉換為量化版本以降低延遲">B
+錯：將模型轉換為量化版本以降低延遲</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>漂移監測機制</strong>，所以不能選。</p>
+<h3 id="c-錯增加模型超參數調整次數以強化適應性">C
+錯：增加模型超參數調整次數以強化適應性</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>漂移監測機制</strong>，所以不能選。</p>
+<h3 id="d-錯使用固定隨機種子random-seed確保訓練穩定">D
+錯：使用固定隨機種子（Random Seed）確保訓練穩定</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>漂移監測機制</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某企業的AI模型已部署於線上服務環境中，用於即時預測顧客流失機率。近期團隊注意到模型預測準確率逐漸下降，但系統運作正常且未出現錯誤訊息。經分析發現，近期輸入資料的分布與模型訓練資料相比出現顯著偏移。若要在MLOps流程中主動偵測並預警此類問題，最應採用下列哪項措施？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>模型準確率下降但系統正常，優先監測 Data Drift 與 Concept
+Drift。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>在MLOps流程中，應建立即時的資料漂移（Data Drift）與概念漂移（Concept Drift）監測機制。
+ 資料漂移指輸入分佈變化；概念漂移指輸入與輸出關係變化。兩者都會導致模型效能下降，需要主動
+ 監測和預警。
+ 正確答案：建立即時的資料漂移（Data Drift）與概念漂移（Concept Drift）監測機制</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

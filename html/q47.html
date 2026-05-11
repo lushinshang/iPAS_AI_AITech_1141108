@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 47 題解析：多任務學習損失平衡</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 47 題解析：多任務學習損失平衡</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q46.html">上一題</a><a href="q48.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q47.png" alt="第 47 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-47-題解析多任務學習損失平衡">第 47
+題解析：多任務學習損失平衡</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(C) 損失函數（Loss
+Function）未進行權重平衡，導致任務間競爭</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某金融科技公司導入多任務學習架構，讓單一 Transformer 模型同時執行 OCR（Optical Character
+ Recognition）後的文檔分類以及命名實體辨識（Named Entity Recognition, NER）任務，以協助自
+ 動歸檔與抽取關鍵金融資訊。在部署初期，團隊發現當模型的 NER 準確率（Accuracy）提升時，文
+ 檔分類準確率反而下降。若模型架構正確且資料品質良好，下列哪一項最可能是造成此現象的原因？
+     a. 模型架構無法同時支援文字分類與序列標註任務（Sequence Labeling）
+     b. 文檔分類任務不需要語意化表徵（Contextualized Representation）
+     c. 損失函數（Loss Function）未進行權重平衡，導致任務間競爭
+     d. 所使用的 BERT 模型無法支援多任務輸出頭（Multi-Head Outputs）</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>多任務學習損失平衡</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>多任務學習像一個學生同時準備兩科，時間分配不均時，一科進步可能另一科退步。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某金融科技公司導入多任務學習架構，讓單一Transformer模型同時執行OCR（OpticalCharacterRecognition）後的文檔分類以及命名實體辨識（NamedEntityRecognition,NER）任務，以協助自動歸檔與抽取關鍵金融資訊。在部署初期，團隊發現當模型的NER準確？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 59%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「多任務學習損失平衡」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>損失函數（Loss Function）未進行權重平衡，導致任務間競爭</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>一任務變好另一任務變差，常是 loss 權重沒平衡。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-c">解析：為什麼答案是 C</h2>
+<p>Loss 權重決定模型訓練時重視哪個任務。未平衡時，NER
+可能搶走文檔分類的學習資源。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>多任務學習損失平衡</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是 <strong>C</strong>，也就是：<strong>損失函數（Loss
+Function）未進行權重平衡，導致任務間競爭</strong>。</li>
+</ol>
+<p>這正是 <strong>C</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要以為 BERT 不能做多任務。問題通常在任務競爭和 loss
+權重，而不是架構完全不支援。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3
+id="a-錯模型架構無法同時支援文字分類與序列標註任務sequence-labeling">A
+錯：模型架構無法同時支援文字分類與序列標註任務（Sequence Labeling）</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>多任務學習損失平衡</strong>，所以不能選。</p>
+<h3 id="b-錯文檔分類任務不需要語意化表徵contextualized-represent">B
+錯：文檔分類任務不需要語意化表徵（Contextualized Represent…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>多任務學習損失平衡</strong>，所以不能選。</p>
+<h3 id="c-對損失函數loss-function未進行權重平衡導致任務間競爭">C
+對：損失函數（Loss Function）未進行權重平衡，導致任務間競爭</h3>
+<p>看到這個選項，要先抓它的核心：<strong>損失函數（Loss
+Function）未進行權重平衡，導致任務間競爭</strong>。</p>
+<p>它正好對到題目要求的「多任務學習損失平衡」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="d-錯所使用的-bert-模型無法支援多任務輸出頭multi-head-outpu">D
+錯：所使用的 BERT 模型無法支援多任務輸出頭（Multi-Head Outpu…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>多任務學習損失平衡</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某金融科技公司導入多任務學習架構，讓單一Transformer模型同時執行OCR（OpticalCharacterRecognition）後的文檔分類以及命名實體辨識（NamedEntityRecognition,NER）任務，以協助自動歸檔與抽取關鍵金融資訊。在部署初期，團隊發現當模型的NER準確？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>一任務變好另一任務變差，常是 loss 權重沒平衡。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>在多任務學習（Multi-task Learning）中，若一個任務提升而另一個下降，最可能原因是損失函數
+ （Loss Function）未進行權重平衡，導致任務間競爭（Task Competition）。解決方法是調整各任
+ 務損失的權重或使用動態權重調整策略。
+ 正確答案：損失函數（Loss Function）未進行權重平衡，導致任務間競爭</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

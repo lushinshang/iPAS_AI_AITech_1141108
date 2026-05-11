@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 07 題解析：物件偵測評估</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 07 題解析：物件偵測評估</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q06.html">上一題</a><a href="q08.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q07.png" alt="第 07 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-07-題解析物件偵測評估">第 07 題解析：物件偵測評估</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(A)
+預測邊界框與真實邊界框的重疊程度越高，模型偵測結果越精準</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>在企業導入的智慧監控系統中，模型以物件偵測（Object Detection）方式自動辨識影像中的人物與
+ 車輛。若評估指標採用平均精確率（Mean Average Precision, mAP），其中 IoU（Intersection over
+ Union）閾值設定較高時，代表下列哪一項意義？
+     a. 預測邊界框與真實邊界框的重疊程度越高，模型偵測結果越精準
+     b. 預測邊界框與真實邊界框的誤差越大，導致 mAP 數值上升
+     c. 模型整體精確率（Precision）降低，但召回率（Recall）上升
+     d. 預測邊界框的評估結果不受真實框大小影響</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>物件偵測評估</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>物件偵測不只要猜出圖片裡有車，還要把車的位置框得準。</p>
+<p>題目說：</p>
+<blockquote>
+<p>在企業導入的智慧監控系統中，模型以物件偵測（ObjectDetection）方式自動辨識影像中的人物與車輛。若評估指標採用平均精確率（MeanAveragePrecision,mAP），其中IoU（IntersectionoverUnion）閾值設定較高時，代表下列哪一項意義？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 54%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「物件偵測評估」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>預測邊界框與真實邊界框的重疊程度越高，模型偵測結果越精準</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>IoU 閾值越高，預測框和真實框要重疊得越精準。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-a">解析：為什麼答案是 A</h2>
+<p>IoU 可以想成兩張貼紙重疊的比例：預測框和標準答案框重疊越多，IoU
+越高。門檻越高，表示老師改得越嚴格。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>物件偵測評估</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>A</strong>，也就是：<strong>預測邊界框與真實邊界框的重疊程度越高，模型偵測結果越精準</strong>。</li>
+</ol>
+<p>這正是 <strong>A</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要把 IoU 閾值高誤解成誤差變大。它其實代表要求更精準。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強 IoU 直覺：IoU 閾值越高不是誤差越大，而是老師要求框得越準。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「物件偵測評估」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>IoU 閾值越高，預測框和真實框要重疊得越精準。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-對預測邊界框與真實邊界框的重疊程度越高模型偵測結果越精準">A
+對：預測邊界框與真實邊界框的重疊程度越高，模型偵測結果越精準</h3>
+<p>看到這個選項，要先抓它的核心：<strong>預測邊界框與真實邊界框的重疊程度越高，模型偵測結果越精準</strong>。</p>
+<p>它正好對到題目要求的「物件偵測評估」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="b-錯預測邊界框與真實邊界框的誤差越大導致-map-數值上升">B
+錯：預測邊界框與真實邊界框的誤差越大，導致 mAP 數值上升</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>物件偵測評估</strong>，所以不能選。</p>
+<h3 id="c-錯模型整體精確率precision降低但召回率recall上升">C
+錯：模型整體精確率（Precision）降低，但召回率（Recall）上升</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>物件偵測評估</strong>，所以不能選。</p>
+<h3 id="d-錯預測邊界框的評估結果不受真實框大小影響">D
+錯：預測邊界框的評估結果不受真實框大小影響</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>物件偵測評估</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>在企業導入的智慧監控系統中，模型以物件偵測（ObjectDetection）方式自動辨識影像中的人物與車輛。若評估指標採用平均精確率（MeanAveragePrecision,mAP），其中IoU（IntersectionoverUnion）閾值設定較高時，代表下列哪一項意義？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>IoU 閾值越高，預測框和真實框要重疊得越精準。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>IoU（Intersection over Union，交並比）衡量預測邊界框與真實邊界框的重疊程度。IoU閾值設定越
+ 高，表示對預測框與真實框的重疊要求越嚴格，只有高度精準的偵測結果才會被視為正確。mAP
+ （Mean Average Precision）是物件偵測的標準評估指標。
+ 正確答案：預測邊界框與真實邊界框的重疊程度越高，模型偵測結果越精準</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

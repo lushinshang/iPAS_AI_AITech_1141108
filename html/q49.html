@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 49 題解析：情感分析偏誤與公平性</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 49 題解析：情感分析偏誤與公平性</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q48.html">上一題</a><a href="q50.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q49.png" alt="第 49 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-49-題解析情感分析偏誤與公平性">第 49
+題解析：情感分析偏誤與公平性</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(A) 模型未啟用詞嵌入正規化（Embedding
+Normalization）可能造成語意距離不穩定，導致 預測誤差</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某電商平台導入 AI 情感分析模型，用以自動偵測顧客評論中的負面情緒並觸發客服機制。然而，上線
+ 後發現模型在面對不同語言或族群書寫風格的評論時表現不一致，例如部分語氣強烈的正面評論被誤
+ 判為負面，而禮貌但含批評意圖的評論卻被判為中性。若從技術與資料治理的角度分析，下列哪一項
+ 描述不正確？
+     a. 模型未啟用詞嵌入正規化（Embedding Normalization）可能造成語意距離不穩定，導致
+        預測誤差
+     b. 訓練語料若偏向特定文化或語氣特徵，可能使模型產生內隱偏誤（Implicit Bias）
+     c. 模型若訓練資料來源不平衡，容易導致對不同語言或族群風格的情緒判斷不準確
+     d. Transformer 架構能捕捉上下文語意，但若訓練資料偏差仍存在，模型仍可能學習到偏誤判
+        斷</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>情感分析偏誤與公平性</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>跨語言、跨族群語氣差異會讓情感分析模型學到偏誤。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某電商平台導入AI情感分析模型，用以自動偵測顧客評論中的負面情緒並觸發客服機制。然而，上線後發現模型在面對不同語言或族群書寫風格的評論時表現不一致，例如部分語氣強烈的正面評論被誤判為負面，而禮貌但含批評意圖的評論卻被判為中性。若從技術與資料治理的角度分析，下列哪一項描述不正確？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 70%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「情感分析偏誤與公平性」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>模型未啟用詞嵌入正規化（Embedding
+Normalization）可能造成語意距離不穩定，導致 預測誤差</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>跨語言語氣誤判，多半是資料偏差，不是單靠 embedding
+normalization。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-a">解析：為什麼答案是 A</h2>
+<p>如果訓練資料偏向某種文化語氣，模型可能把強烈正面誤判成負面，也可能看不懂禮貌批評。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>情感分析偏誤與公平性</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>A</strong>，也就是：<strong>模型未啟用詞嵌入正規化（Embedding
+Normalization）可能造成語意距離不穩定，導致 預測誤差</strong>。</li>
+</ol>
+<p>這正是 <strong>A</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>題目問不正確描述時，要找那個把主因錯推給技術細節的選項；真正主因通常是資料偏差。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-對模型未啟用詞嵌入正規化embedding-normalization可能造">A
+對：模型未啟用詞嵌入正規化（Embedding Normalization）可能造…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>模型未啟用詞嵌入正規化（Embedding
+Normalization）可能造成語意距離不穩定，導致 預測誤差</strong>。</p>
+<p>它正好對到題目要求的「情感分析偏誤與公平性」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3
+id="b-錯訓練語料若偏向特定文化或語氣特徵可能使模型產生內隱偏誤implicit-b">B
+錯：訓練語料若偏向特定文化或語氣特徵，可能使模型產生內隱偏誤（Implicit
+B…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>情感分析偏誤與公平性</strong>，所以不能選。</p>
+<h3
+id="c-錯模型若訓練資料來源不平衡容易導致對不同語言或族群風格的情緒判斷不準確">C
+錯：模型若訓練資料來源不平衡，容易導致對不同語言或族群風格的情緒判斷不準確</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>情感分析偏誤與公平性</strong>，所以不能選。</p>
+<h3
+id="d-錯transformer-架構能捕捉上下文語意但若訓練資料偏差仍存在模型仍可">D
+錯：Transformer
+架構能捕捉上下文語意，但若訓練資料偏差仍存在，模型仍可…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>情感分析偏誤與公平性</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某電商平台導入AI情感分析模型，用以自動偵測顧客評論中的負面情緒並觸發客服機制。然而，上線後發現模型在面對不同語言或族群書寫風格的評論時表現不一致，例如部分語氣強烈的正面評論被誤判為負面，而禮貌但含批評意圖的評論卻被判為中性。若從技術與資料治理的角度分析，下列哪一項描述不正確？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>跨語言語氣誤判，多半是資料偏差，不是單靠 embedding
+normalization。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>選項(A)不正確：詞嵌入正規化（Embedding Normalization）主要用於穩定訓練，但不是造成跨文
+ 化情感分析誤差的主因。真正原因是訓練資料偏差（Training Data Bias）和內隱偏誤（Implicit
+ Bias），如選項(B)(C)(D)所述。
+ 正確答案：模型未啟用詞嵌入正規化（Embedding Normalization）可能造成語意距離不穩定，導致
+ 預測誤差</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

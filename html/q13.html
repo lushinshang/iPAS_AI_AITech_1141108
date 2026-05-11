@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 13 題解析：AI 服務部署與編排</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 13 題解析：AI 服務部署與編排</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q12.html">上一題</a><a href="q14.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q13.png" alt="第 13 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-13-題解析ai-服務部署與編排">第 13 題解析：AI
+服務部署與編排</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(B)
+管理與協調模型服務的部署、擴展與運行環境</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>下列何者為 Kubernetes 在 AI 模型部署與運行中的核心功能？
+     a. 自動化管理模型的訓練流程與參數調校
+     b. 管理與協調模型服務的部署、擴展與運行環境
+     c. 提供 AI 模型的資料儲存與版本控管功能
+     d. 負責深度學習推論的 GPU 加速運算</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>AI 服務部署與編排</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>Kubernetes 是管理容器化服務的調度中心。</p>
+<p>題目說：</p>
+<blockquote>
+<p>下列何者為Kubernetes在AI模型部署與運行中的核心功能？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 53%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「AI 服務部署與編排」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>管理與協調模型服務的部署、擴展與運行環境</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>K8s 管容器部署、擴展與運行環境，不負責訓練調參。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-b">解析：為什麼答案是 B</h2>
+<p>它像餐廳外場主管，負責安排哪個服務上線、擴幾份、壞掉時補上，但不負責研究菜譜本身。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>AI 服務部署與編排</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>B</strong>，也就是：<strong>管理與協調模型服務的部署、擴展與運行環境</strong>。</li>
+</ol>
+<p>這正是 <strong>B</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>看到部署、擴展、運行環境，選 K8s；看到訓練參數或 GPU
+運算，就不是它的核心功能。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯自動化管理模型的訓練流程與參數調校">A
+錯：自動化管理模型的訓練流程與參數調校</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>AI 服務部署與編排</strong>，所以不能選。</p>
+<h3 id="b-對管理與協調模型服務的部署擴展與運行環境">B
+對：管理與協調模型服務的部署、擴展與運行環境</h3>
+<p>看到這個選項，要先抓它的核心：<strong>管理與協調模型服務的部署、擴展與運行環境</strong>。</p>
+<p>它正好對到題目要求的「AI
+服務部署與編排」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="c-錯提供-ai-模型的資料儲存與版本控管功能">C 錯：提供 AI
+模型的資料儲存與版本控管功能</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>AI 服務部署與編排</strong>，所以不能選。</p>
+<h3 id="d-錯負責深度學習推論的-gpu-加速運算">D 錯：負責深度學習推論的
+GPU 加速運算</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>AI 服務部署與編排</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>下列何者為Kubernetes在AI模型部署與運行中的核心功能？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>K8s 管容器部署、擴展與運行環境，不負責訓練調參。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>Kubernetes（簡稱K8s）是容器編排平台（Container Orchestration Platform），核心功能是管理
+ 與協調容器化應用的部署、擴展與運行環境。在AI領域，K8s用於管理模型服務的自動擴縮（Auto
+ Scaling）、負載平衡和高可用性部署。
+ 正確答案：管理與協調模型服務的部署、擴展與運行環境</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

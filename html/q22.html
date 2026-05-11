@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 22 題解析：分佈差異偵測</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 22 題解析：分佈差異偵測</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q21.html">上一題</a><a href="q23.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q22.png" alt="第 22 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-22-題解析分佈差異偵測">第 22 題解析：分佈差異偵測</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(D) 計算輸入特徵分佈間的 KL 散度（KL
+Divergence）</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某電商平台開發的顧客流失預測模型在上線數月後，預測準確率明顯下降。專案團隊懷疑顧客行為模
+ 式改變，導致模型輸入特徵的分佈與原始訓練資料不同，出現典型的資料漂移（Data Drift）問題。為
+ 了偵測並確認資料分佈是否發生變化，下列哪一種作法最合適？
+     a. 定期重新訓練模型以應對外部變化
+     b. 提升模型複雜度以捕捉更多資料變異性
+     c. 增加測試資料量以提高評估準確度
+     d. 計算輸入特徵分佈間的 KL 散度（KL Divergence）</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>分佈差異偵測</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>分佈可以想成資料長相的比例，例如年齡、消費頻率、點擊行為各自集中在哪些區間。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某電商平台開發的顧客流失預測模型在上線數月後，預測準確率明顯下降。專案團隊懷疑顧客行為模式改變，導致模型輸入特徵的分佈與原始訓練資料不同，出現典型的資料漂移（DataDrift）問題。為了偵測並確認資料分佈是否發生變化，下列哪一種作法最合適？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 60%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「分佈差異偵測」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>計算輸入特徵分佈間的 KL 散度（KL Divergence）</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>題目問確認 Data Drift，就找 KL、PSI 等分佈差異指標。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-d">解析：為什麼答案是 D</h2>
+<p>KL Divergence 像比較兩張資料地圖，看現在資料和訓練資料差多遠。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>分佈差異偵測</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是 <strong>D</strong>，也就是：<strong>計算輸入特徵分佈間的
+KL 散度（KL Divergence）</strong>。</li>
+</ol>
+<p>這正是 <strong>D</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要看到準確率下降就直接重訓。若題目問確認是否發生漂移，答案會是分佈差異指標。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強漂移題關鍵動詞：題目問「偵測/確認」就選
+KL、PSI；問「處理」才談重訓。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「分佈差異偵測」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>題目問確認 Data Drift，就找 KL、PSI
+等分佈差異指標。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯定期重新訓練模型以應對外部變化">A
+錯：定期重新訓練模型以應對外部變化</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>分佈差異偵測</strong>，所以不能選。</p>
+<h3 id="b-錯提升模型複雜度以捕捉更多資料變異性">B
+錯：提升模型複雜度以捕捉更多資料變異性</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>分佈差異偵測</strong>，所以不能選。</p>
+<h3 id="c-錯增加測試資料量以提高評估準確度">C
+錯：增加測試資料量以提高評估準確度</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>分佈差異偵測</strong>，所以不能選。</p>
+<h3 id="d-對計算輸入特徵分佈間的-kl-散度kl-divergence">D
+對：計算輸入特徵分佈間的 KL 散度（KL Divergence）</h3>
+<p>看到這個選項，要先抓它的核心：<strong>計算輸入特徵分佈間的 KL
+散度（KL Divergence）</strong>。</p>
+<p>它正好對到題目要求的「分佈差異偵測」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某電商平台開發的顧客流失預測模型在上線數月後，預測準確率明顯下降。專案團隊懷疑顧客行為模式改變，導致模型輸入特徵的分佈與原始訓練資料不同，出現典型的資料漂移（DataDrift）問題。為了偵測並確認資料分佈是否發生變化，下列哪一種作法最合適？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>題目問確認 Data Drift，就找 KL、PSI
+等分佈差異指標。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>偵測資料漂移（Data Drift）最合適的方法是計算輸入特徵分佈間的KL散度（Kullback-Leibler
+ Divergence），衡量當前資料分佈與訓練資料分佈的差異。其他常用指標還包括PSI（Population
+ Stability Index）和JS散度。
+ 正確答案：計算輸入特徵分佈間的 KL 散度（KL Divergence）</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

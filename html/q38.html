@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 38 題解析：擴散模型取樣品質</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 38 題解析：擴散模型取樣品質</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q37.html">上一題</a><a href="q39.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q38.png" alt="第 38 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-38-題解析擴散模型取樣品質">第 38
+題解析：擴散模型取樣品質</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(B)
+增加取樣步數並選擇高品質取樣器，以強化細節還原度</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某影像設計團隊在使用 Stable Diffusion 生成 4K 級產品圖時，發現影像邊緣與細節存在顆粒化與模糊
+ 現象。若僅能在生成階段進行調整，希望提升畫面清晰度與紋理層次，同時避免過度平滑，下列哪一
+ 項作法最適合？
+     a. 降低取樣步數，以縮短生成時間
+     b. 增加取樣步數並選擇高品質取樣器，以強化細節還原度
+     c. 提高 CFG（Classifier-Free Guidance）值，使生成結果更具創意與多樣性
+     d. 改用低解析度輸入以降低計算成本</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>擴散模型取樣品質</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>擴散模型生成圖片時，是一步步從雜訊修成清楚影像。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某影像設計團隊在使用StableDiffusion生成4K級產品圖時，發現影像邊緣與細節存在顆粒化與模糊現象。若僅能在生成階段進行調整，希望提升畫面清晰度與紋理層次，同時避免過度平滑，下列哪一項作法最適合？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 55%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「擴散模型取樣品質」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>增加取樣步數並選擇高品質取樣器，以強化細節還原度</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>生成階段要補細節，增加取樣步數並選高品質 sampler。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-b">解析：為什麼答案是 B</h2>
+<p>取樣步數越多，像修圖時多檢查幾輪細節；高品質 sampler
+則像更好的修圖流程。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>擴散模型取樣品質</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>B</strong>，也就是：<strong>增加取樣步數並選擇高品質取樣器，以強化細節還原度</strong>。</li>
+</ol>
+<p>這正是 <strong>B</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>CFG
+控制提示詞遵循程度，不是專門解決邊緣顆粒與細節模糊的第一選項。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯降低取樣步數以縮短生成時間">A
+錯：降低取樣步數，以縮短生成時間</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>擴散模型取樣品質</strong>，所以不能選。</p>
+<h3 id="b-對增加取樣步數並選擇高品質取樣器以強化細節還原度">B
+對：增加取樣步數並選擇高品質取樣器，以強化細節還原度</h3>
+<p>看到這個選項，要先抓它的核心：<strong>增加取樣步數並選擇高品質取樣器，以強化細節還原度</strong>。</p>
+<p>它正好對到題目要求的「擴散模型取樣品質」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="c-錯提高-cfgclassifier-free-guidance值使生成結果">C 錯：提高
+CFG（Classifier-Free Guidance）值，使生成結果…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>擴散模型取樣品質</strong>，所以不能選。</p>
+<h3 id="d-錯改用低解析度輸入以降低計算成本">D
+錯：改用低解析度輸入以降低計算成本</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>擴散模型取樣品質</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某影像設計團隊在使用StableDiffusion生成4K級產品圖時，發現影像邊緣與細節存在顆粒化與模糊現象。若僅能在生成階段進行調整，希望提升畫面清晰度與紋理層次，同時避免過度平滑，下列哪一項作法最適合？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>生成階段要補細節，增加取樣步數並選高品質
+sampler。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>提升Stable Diffusion生成品質的方法是增加取樣步數（Sampling Steps）並選擇高品質取樣器
+ （Sampler），如DPM++或Euler a。更多步數能讓去噪過程更精細，強化細節還原度。CFG
+ （Classifier-Free Guidance）控制的是提示詞遵循程度。
+ 正確答案：增加取樣步數並選擇高品質取樣器，以強化細節還原度</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

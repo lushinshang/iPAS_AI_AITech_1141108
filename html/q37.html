@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 37 題解析：GPU 記憶體壓力</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 37 題解析：GPU 記憶體壓力</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q36.html">上一題</a><a href="q38.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q37.png" alt="第 37 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-37-題解析gpu-記憶體壓力">第 37 題解析：GPU 記憶體壓力</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(B) 採用較小的批次大小（Batch
+Size）並搭配資料分片（Data Sharding）分散訓練負載</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某公司正在訓練一個大型語音合成模型，開發團隊使用多台 GPU 進行訓練，但經常出現 GPU 記憶體
+ 不足問題。由於模型架構已固定且無法更換硬體，團隊希望在維持模型效能與收斂品質的前提下，下
+ 列哪一種方法最有效降低單張 GPU 的記憶體壓力？
+     a. 減少訓練資料量以降低記憶體使用
+     b. 採用較小的批次大小（Batch Size）並搭配資料分片（Data Sharding）分散訓練負載
+     c. 增加學習率（Learning Rate）以加快收斂速度
+     d. 改用測試資料集（Test Set）進行部分訓練以節省空間</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>GPU 記憶體壓力</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>GPU 記憶體不足時，最直接的方法是減少一次塞進 GPU 的資料量。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某公司正在訓練一個大型語音合成模型，開發團隊使用多台GPU進行訓練，但經常出現GPU記憶體不足問題。由於模型架構已固定且無法更換硬體，團隊希望在維持模型效能與收斂品質的前提下，下列哪一種方法最有效降低單張GPU的記憶體壓力？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 68%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「GPU 記憶體壓力」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>採用較小的批次大小（Batch Size）並搭配資料分片（Data
+Sharding）分散訓練負載</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>不能換模型與硬體時，先縮 batch 並分散資料負載。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-b">解析：為什麼答案是 B</h2>
+<p>batch size
+像一次搬進教室的人數，資料分片像把學生分到不同教室，壓力就會下降。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>GPU 記憶體壓力</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>B</strong>，也就是：<strong>採用較小的批次大小（Batch
+Size）並搭配資料分片（Data Sharding）分散訓練負載</strong>。</li>
+</ol>
+<p>這正是 <strong>B</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要用減少訓練資料或改測試集訓練來省記憶體，那會傷害訓練品質。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯減少訓練資料量以降低記憶體使用">A
+錯：減少訓練資料量以降低記憶體使用</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>GPU 記憶體壓力</strong>，所以不能選。</p>
+<h3 id="b-對採用較小的批次大小batch-size並搭配資料分片data-shard">B
+對：採用較小的批次大小（Batch Size）並搭配資料分片（Data Shard…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>採用較小的批次大小（Batch
+Size）並搭配資料分片（Data Sharding）分散訓練負載</strong>。</p>
+<p>它正好對到題目要求的「GPU
+記憶體壓力」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="c-錯增加學習率learning-rate以加快收斂速度">C
+錯：增加學習率（Learning Rate）以加快收斂速度</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>GPU 記憶體壓力</strong>，所以不能選。</p>
+<h3 id="d-錯改用測試資料集test-set進行部分訓練以節省空間">D
+錯：改用測試資料集（Test Set）進行部分訓練以節省空間</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>GPU 記憶體壓力</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某公司正在訓練一個大型語音合成模型，開發團隊使用多台GPU進行訓練，但經常出現GPU記憶體不足問題。由於模型架構已固定且無法更換硬體，團隊希望在維持模型效能與收斂品質的前提下，下列哪一種方法最有效降低單張GPU的記憶體壓力？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>不能換模型與硬體時，先縮 batch 並分散資料負載。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>降低GPU記憶體壓力的有效方法是採用較小的批次大小（Batch Size）並搭配資料分片（Data
+ Sharding）分散訓練負載。其他技術還包括梯度累積（Gradient Accumulation）、混合精度訓練
+ （Mixed Precision Training）等。
+ 正確答案：採用較小的批次大小（Batch Size）並搭配資料分片（Data Sharding）分散訓練負載</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

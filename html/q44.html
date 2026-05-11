@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 44 題解析：預測與資料生成</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 44 題解析：預測與資料生成</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q43.html">上一題</a><a href="q45.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q44.png" alt="第 44 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-44-題解析預測與資料生成">第 44 題解析：預測與資料生成</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(C) 使用變分自編碼器（Variational Autoencoder,
+VAE）或生成對抗網路（Generative Adversarial Network, GAN）</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某電信公司希望建立一個模型來預測顧客是否即將流失，並進一步模擬不同促銷或服務策略下顧客的
+ 行為變化，以生成多樣化的虛擬樣本資料進行 A/B 測試與行銷策略評估。若要同時兼顧預測與資料生
+ 成的需求，最適合採用下列哪一種方法？
+     a. 使用傳統隨機森林（Random Forest）
+     b. 使用邏輯迴歸（Logistic Regression）模型
+     c. 使用變分自編碼器（Variational Autoencoder, VAE）或生成對抗網路（Generative
+        Adversarial Network, GAN）
+     d. 使用強化學習代理（Reinforcement Learning Agent）</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>預測與資料生成</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>有些任務只要預測，有些任務還要生成可能樣本來模擬策略。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某電信公司希望建立一個模型來預測顧客是否即將流失，並進一步模擬不同促銷或服務策略下顧客的行為變化，以生成多樣化的虛擬樣本資料進行A/B測試與行銷策略評估。若要同時兼顧預測與資料生成的需求，最適合採用下列哪一種方法？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 78%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「預測與資料生成」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>使用變分自編碼器（Variational Autoencoder,
+VAE）或生成對抗網路（Generative Adversarial Network, GAN）</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>同時要預測和生成虛擬樣本，就找 VAE/GAN 生成式模型。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-c">解析：為什麼答案是 C</h2>
+<p>VAE/GAN
+能學資料分佈並生成虛擬樣本，所以適合做顧客行為模擬與策略測試。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>預測與資料生成</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>C</strong>，也就是：<strong>使用變分自編碼器（Variational
+Autoencoder, VAE）或生成對抗網路（Generative Adversarial Network,
+GAN）</strong>。</li>
+</ol>
+<p>這正是 <strong>C</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>隨機森林和邏輯迴歸主要是預測模型，不是用來產生多樣化虛擬樣本的生成模型。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強生成式模型用途：題目同時要預測與生成虛擬樣本，就找
+VAE/GAN，不是傳統分類器。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「預測與資料生成」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>同時要預測和生成虛擬樣本，就找 VAE/GAN
+生成式模型。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯使用傳統隨機森林random-forest">A
+錯：使用傳統隨機森林（Random Forest）</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>預測與資料生成</strong>，所以不能選。</p>
+<h3 id="b-錯使用邏輯迴歸logistic-regression模型">B
+錯：使用邏輯迴歸（Logistic Regression）模型</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>預測與資料生成</strong>，所以不能選。</p>
+<h3 id="c-對使用變分自編碼器variational-autoencoder-vae或">C
+對：使用變分自編碼器（Variational Autoencoder, VAE）或…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>使用變分自編碼器（Variational
+Autoencoder, VAE）或生成對抗網路（Generative Adversarial Network,
+GAN）</strong>。</p>
+<p>它正好對到題目要求的「預測與資料生成」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="d-錯使用強化學習代理reinforcement-learning-agent">D
+錯：使用強化學習代理（Reinforcement Learning Agent）</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>預測與資料生成</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某電信公司希望建立一個模型來預測顧客是否即將流失，並進一步模擬不同促銷或服務策略下顧客的行為變化，以生成多樣化的虛擬樣本資料進行A/B測試與行銷策略評估。若要同時兼顧預測與資料生成的需求，最適合採用下列哪一種方法？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>同時要預測和生成虛擬樣本，就找 VAE/GAN
+生成式模型。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>同時兼顧預測與資料生成的需求，最適合使用生成式模型如VAE（Variational Autoencoder）或
+ GAN（Generative Adversarial Network）。這些模型能學習資料分佈，既可用於預測，也能生成虛
+ 擬樣本進行策略模擬。
+ 正確答案：使用變分自編碼器（Variational Autoencoder, VAE）或生成對抗網路（Generative
+ Adversarial Network, GAN）</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

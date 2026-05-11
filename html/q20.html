@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 20 題解析：生成對抗網路穩定性</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 20 題解析：生成對抗網路穩定性</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q19.html">上一題</a><a href="q21.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q20.png" alt="第 20 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-20-題解析生成對抗網路穩定性">第 20
+題解析：生成對抗網路穩定性</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(B) 採用 Wasserstein 距離（WGAN 損失）替代原始的 GAN
+損失函數</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>在使用生成對抗網路（GAN）進行人臉影像生成時，若出現「模式崩潰」（Mode Collapse）現象，下
+ 列哪一種方法最常被用來有效解決此問題？
+     a. 在鑑別器中加入梯度懲罰（Gradient Penalty）以穩定訓練過程
+     b. 採用 Wasserstein 距離（WGAN 損失）替代原始的 GAN 損失函數
+     c. 對生成器輸入的潛在向量加入隨機擾動
+     d. 使用多尺度鑑別器架構以提高對多樣性的判別能力</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>生成對抗網路穩定性</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>GAN 有生成器和鑑別器，像一個畫假畫的人和一個鑑定專家互相進步。</p>
+<p>題目說：</p>
+<blockquote>
+<p>在使用生成對抗網路（GAN）進行人臉影像生成時，若出現「模式崩潰」（ModeCollapse）現象，下列哪一種方法最常被用來有效解決此問題？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 64%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「生成對抗網路穩定性」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>採用 Wasserstein 距離（WGAN 損失）替代原始的 GAN 損失函數</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>Mode Collapse 優先想到 WGAN 與 Wasserstein 距離。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-b">解析：為什麼答案是 B</h2>
+<p>模式崩潰是生成器偷懶，只會畫少數幾種看起來能騙過鑑別器的樣本。WGAN 用
+Wasserstein 距離讓訓練訊號更穩。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>生成對抗網路穩定性</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是 <strong>B</strong>，也就是：<strong>採用 Wasserstein
+距離（WGAN 損失）替代原始的 GAN 損失函數</strong>。</li>
+</ol>
+<p>這正是 <strong>B</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>梯度懲罰也和穩定訓練有關，但本題若問最常用來改善模式崩潰，核心答案是
+WGAN 損失。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強 GAN 題型：看到 Mode Collapse，第一反應要是 WGAN/Wasserstein
+距離。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「生成對抗網路穩定性」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>Mode Collapse 優先想到 WGAN 與 Wasserstein
+距離。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯在鑑別器中加入梯度懲罰gradient-penalty以穩定訓練過程">A
+錯：在鑑別器中加入梯度懲罰（Gradient Penalty）以穩定訓練過程</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>生成對抗網路穩定性</strong>，所以不能選。</p>
+<h3 id="b-對採用-wasserstein-距離wgan-損失替代原始的-gan-損失函數">B
+對：採用 Wasserstein 距離（WGAN 損失）替代原始的 GAN 損失函數</h3>
+<p>看到這個選項，要先抓它的核心：<strong>採用 Wasserstein 距離（WGAN
+損失）替代原始的 GAN 損失函數</strong>。</p>
+<p>它正好對到題目要求的「生成對抗網路穩定性」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="c-錯對生成器輸入的潛在向量加入隨機擾動">C
+錯：對生成器輸入的潛在向量加入隨機擾動</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>生成對抗網路穩定性</strong>，所以不能選。</p>
+<h3 id="d-錯使用多尺度鑑別器架構以提高對多樣性的判別能力">D
+錯：使用多尺度鑑別器架構以提高對多樣性的判別能力</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>生成對抗網路穩定性</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>在使用生成對抗網路（GAN）進行人臉影像生成時，若出現「模式崩潰」（ModeCollapse）現象，下列哪一種方法最常被用來有效解決此問題？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>Mode Collapse 優先想到 WGAN 與 Wasserstein
+距離。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>模式崩潰（Mode Collapse）是GAN（Generative Adversarial Network）的常見問題，生成器只
+ 產生有限的樣本類型。WGAN（Wasserstein GAN）採用Wasserstein距離（Earth Mover&#39;s
+ Distance）替代原始損失函數，能有效解決模式崩潰並穩定訓練過程。
+ 正確答案：採用 Wasserstein 距離（WGAN 損失）替代原始的 GAN 損失函數</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

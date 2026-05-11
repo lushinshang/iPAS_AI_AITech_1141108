@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 43 題解析：低資源實驗設計</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 43 題解析：低資源實驗設計</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q42.html">上一題</a><a href="q44.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q43.png" alt="第 43 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-43-題解析低資源實驗設計">第 43 題解析：低資源實驗設計</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(B) 在低資源情境（Low-resource
+Setting）下，逐步減少標註比例（100%、50%、10%）， 比較其
+F1-score</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某金融科技公司欲導入 AI 模型協助客服郵件自動分類（投訴、詢問、表揚）。團隊同時考慮兩種模型
+ 設計：方案 A（生成式路徑）：採用 VAE 建構潛在語意空間，再結合下游分類器進行標籤預測；方案
+ B（鑑別式路徑）：採用 BERT Classifier 直接根據輸入文本進行監督式分類。現有標註資料約 2,000
+ 筆，資料分佈均勻但擴充成本高。若團隊希望公平比較兩種模型的資料利用效率與泛化能力，下列哪
+ 一種實驗設計最能突顯兩者的本質差異？
+     a. 在完整資料集上分別訓練兩者，並比較其分類準確率（Accuracy）與推論時間
+     b. 在低資源情境（Low-resource Setting）下，逐步減少標註比例（100%、50%、10%），比
+        較其 F1-score
+     c. 使用 GAN 自動生成文本樣本補足資料，觀察兩模型在資料增強後的精確率（Precision）
+        差異
+     d. 在相同訓練資料上固定輸入維度，僅調整模型參數量，比較其對過擬合的敏感度</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>低資源實驗設計</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>要比較兩種模型在資料少時誰更會利用資料，就要刻意做低資源測試。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某金融科技公司欲導入AI模型協助客服郵件自動分類（投訴、詢問、表揚）。團隊同時考慮兩種模型設計：方案A（生成式路徑）：採用VAE建構潛在語意空間，再結合下游分類器進行標籤預測；方案B（鑑別式路徑）：採用BERTClassifier直接根據輸入文本進行監督式分類。現有標註資料約2,000筆，資料分佈均？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 5%" />
+<col style="width: 74%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「低資源實驗設計」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>在低資源情境（Low-resource
+Setting）下，逐步減少標註比例（100%、50%、10%）， 比較其 F1-score</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>比較資料利用效率，要逐步減少標註比例再看 F1。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-b">解析：為什麼答案是 B</h2>
+<p>把標註資料降成 100%、50%、10%，再比較
+F1，才能看出資料利用效率與泛化能力差異。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>低資源實驗設計</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>B</strong>，也就是：<strong>在低資源情境（Low-resource
+Setting）下，逐步減少標註比例（100%、50%、10%）， 比較其
+F1-score</strong>。</li>
+</ol>
+<p>這正是 <strong>B</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>只用完整資料集測一次，通常看不出低資源情境下的本質差異。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強實驗設計：要比較資料利用效率，就要刻意做低資源比例實驗，而不是只看完整資料集。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「低資源實驗設計」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>比較資料利用效率，要逐步減少標註比例再看 F1。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3
+id="a-錯在完整資料集上分別訓練兩者並比較其分類準確率accuracy與推論時間">A
+錯：在完整資料集上分別訓練兩者，並比較其分類準確率（Accuracy）與推論時間</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>低資源實驗設計</strong>，所以不能選。</p>
+<h3 id="b-對在低資源情境low-resource-setting下逐步減少標註比例">B
+對：在低資源情境（Low-resource Setting）下，逐步減少標註比例（…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>在低資源情境（Low-resource
+Setting）下，逐步減少標註比例（100%、50%、10%）， 比較其
+F1-score</strong>。</p>
+<p>它正好對到題目要求的「低資源實驗設計」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3
+id="c-錯使用-gan-自動生成文本樣本補足資料觀察兩模型在資料增強後的精確率pre">C
+錯：使用 GAN
+自動生成文本樣本補足資料，觀察兩模型在資料增強後的精確率（Pre…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>低資源實驗設計</strong>，所以不能選。</p>
+<h3
+id="d-錯在相同訓練資料上固定輸入維度僅調整模型參數量比較其對過擬合的敏感度">D
+錯：在相同訓練資料上固定輸入維度，僅調整模型參數量，比較其對過擬合的敏感度</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>低資源實驗設計</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某金融科技公司欲導入AI模型協助客服郵件自動分類（投訴、詢問、表揚）。團隊同時考慮兩種模型設計：方案A（生成式路徑）：採用VAE建構潛在語意空間，再結合下游分類器進行標籤預測；方案B（鑑別式路徑）：採用BERTClassifier直接根據輸入文本進行監督式分類。現有標註資料約2,000筆，資料分佈均？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>比較資料利用效率，要逐步減少標註比例再看 F1。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>比較生成式與鑑別式模型的最佳實驗設計是在低資源情境（Low-resource Setting）下，逐步減少標
+ 註比例，比較F1-score。這能突顯兩者在資料利用效率和泛化能力上的本質差異。
+ 正確答案：在低資源情境（Low-resource Setting）下，逐步減少標註比例（100%、50%、10%），
+ 比較其 F1-score</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

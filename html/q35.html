@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 35 題解析：圖文共同嵌入空間</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 35 題解析：圖文共同嵌入空間</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q34.html">上一題</a><a href="q36.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q35.png" alt="第 35 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-35-題解析圖文共同嵌入空間">第 35
+題解析：圖文共同嵌入空間</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(A) 透過圖文對比式學習（Contrastive
+Learning）將影像與文字映射至共同嵌入空間 （Shared Embedding
+Space），可直接以語意相似度進行零樣本分類</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某媒體公司計畫導入 CLIP（Contrastive Language–Image Pre-training）模型，以協助大量影像自動
+ 標註與搜尋，並希望在無需新增標訓資料的情況下，僅透過文字提示（Text Prompt）即可識別影像內
+ 容。請問此應用情境中，CLIP 能夠達成的關鍵技術特性為何？
+     a. 透過圖文對比式學習（Contrastive Learning）將影像與文字映射至共同嵌入空間
+        （Shared Embedding Space），可直接以語意相似度進行零樣本分類
+     b. 透過影像增強與特徵擴散降低標訓資料需求
+     c. 以監督式學習結合多層感知器（Multilayer Perceptron, MLP）進行影像特徵分類
+     d. 以自迴歸生成模型（Autoregressive Model）逐步生成文字標籤描述影像內容</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>圖文共同嵌入空間</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>CLIP
+類模型會把文字和圖片放進同一個語意空間，讓「文字描述」可以對到「影像內容」。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某媒體公司計畫導入CLIP（ContrastiveLanguage–ImagePre-training）模型，以協助大量影像自動標註與搜尋，並希望在無需新增標訓資料的情況下，僅透過文字提示（TextPrompt）即可識別影像內容。請問此應用情境中，CLIP能夠達成的關鍵技術特性為何？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 79%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「圖文共同嵌入空間」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>透過圖文對比式學習（Contrastive
+Learning）將影像與文字映射至共同嵌入空間 （Shared Embedding
+Space），可直接以語意相似度進行零樣本分類</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>CLIP 題先抓圖文編碼器是否在共同語意空間對齊。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-a">解析：為什麼答案是 A</h2>
+<p>如果提示詞說品牌飲料、海邊夕陽，模型大方向能懂；但標誌顏色、手指姿勢這種細節，如果圖文對齊不夠精準，就容易出錯。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>圖文共同嵌入空間</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>A</strong>，也就是：<strong>透過圖文對比式學習（Contrastive
+Learning）將影像與文字映射至共同嵌入空間 （Shared Embedding
+Space），可直接以語意相似度進行零樣本分類</strong>。</li>
+</ol>
+<p>這正是 <strong>A</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要把細節錯誤簡化成隨機像素錯。多模態生成題常在考文字編碼器與影像編碼器的語意對齊。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-對透過圖文對比式學習contrastive-learning將影像與文字映射">A
+對：透過圖文對比式學習（Contrastive Learning）將影像與文字映射…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>透過圖文對比式學習（Contrastive
+Learning）將影像與文字映射至共同嵌入空間 （Shared Embedding
+Space），可直接以語意相似度進行零樣本分類</strong>。</p>
+<p>它正好對到題目要求的「圖文共同嵌入空間」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="b-錯透過影像增強與特徵擴散降低標訓資料需求">B
+錯：透過影像增強與特徵擴散降低標訓資料需求</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>圖文共同嵌入空間</strong>，所以不能選。</p>
+<h3 id="c-錯以監督式學習結合多層感知器multilayer-perceptron-ml">C
+錯：以監督式學習結合多層感知器（Multilayer Perceptron, ML…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>圖文共同嵌入空間</strong>，所以不能選。</p>
+<h3 id="d-錯以自迴歸生成模型autoregressive-model逐步生成文字標籤描">D
+錯：以自迴歸生成模型（Autoregressive Model）逐步生成文字標籤描…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>圖文共同嵌入空間</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某媒體公司計畫導入CLIP（ContrastiveLanguage–ImagePre-training）模型，以協助大量影像自動標註與搜尋，並希望在無需新增標訓資料的情況下，僅透過文字提示（TextPrompt）即可識別影像內容。請問此應用情境中，CLIP能夠達成的關鍵技術特性為何？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>CLIP 題先抓圖文編碼器是否在共同語意空間對齊。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>CLIP（Contrastive Language-Image Pre-training）的關鍵特性是透過對比式學習（Contrastive
+ Learning）將影像與文字映射至共同嵌入空間（Shared Embedding Space），實現零樣本分類
+ （Zero-shot Classification）。
+ 正確答案：透過圖文對比式學習（Contrastive Learning）將影像與文字映射至共同嵌入空間
+ （Shared Embedding Space），可直接以語意相似度進行零樣本分類</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

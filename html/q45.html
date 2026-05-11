@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 45 題解析：降維與過擬合控制</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 45 題解析：降維與過擬合控制</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q44.html">上一題</a><a href="q46.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q45.png" alt="第 45 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-45-題解析降維與過擬合控制">第 45
+題解析：降維與過擬合控制</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(D)
+降維後可降低訓練時間並減少過擬合（Overfitting）風險</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>進行影像分類任務時，研究團隊嘗試利用主成分分析（Principal Component Analysis, PCA）將輸入
+ 特徵從 1024 維降至 100 維，並將降維後的資料輸入支持向量機（Support Vector Machine, SVM）
+ 模型進行訓練。關於此作法，下列哪一項描述最為合理？
+     a. PCA 保留的主成分必然能提升 SVM 的分類準確率
+     b. 使用原始高維資料通常更能保留資訊，因此 PCA 沒有實際意義
+     c. PCA 可讓 SVM 自動適用於非線性（Nonlinear）資料集
+     d. 降維後可降低訓練時間並減少過擬合（Overfitting）風險</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>降維與過擬合控制</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>PCA 是把很多維度壓成少數主要方向，保留最主要的變化。</p>
+<p>題目說：</p>
+<blockquote>
+<p>進行影像分類任務時，研究團隊嘗試利用主成分分析（PrincipalComponentAnalysis,PCA）將輸入特徵從1024維降至100維，並將降維後的資料輸入支持向量機（SupportVectorMachine,SVM）模型進行訓練。關於此作法，下列哪一項描述最為合理？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 57%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「降維與過擬合控制」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>降維後可降低訓練時間並減少過擬合（Overfitting）風險</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>PCA 可降維、減少訓練時間與過擬合，但不保證準確率提升。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-d">解析：為什麼答案是 D</h2>
+<p>像把 1024 個觀察角度整理成 100
+個主軸，訓練會更快，也比較不容易追著雜訊跑。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>降維與過擬合控制</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>D</strong>，也就是：<strong>降維後可降低訓練時間並減少過擬合（Overfitting）風險</strong>。</li>
+</ol>
+<p>這正是 <strong>D</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>PCA 不保證準確率一定提升，也不會讓 SVM 自動變成非線性模型。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強 PCA 判斷：PCA
+的好處是降維、降訓練成本、降過擬合風險，但不保證準確率一定上升。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「降維與過擬合控制」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>PCA
+可降維、減少訓練時間與過擬合，但不保證準確率提升。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯pca-保留的主成分必然能提升-svm-的分類準確率">A 錯：PCA
+保留的主成分必然能提升 SVM 的分類準確率</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>降維與過擬合控制</strong>，所以不能選。</p>
+<h3 id="b-錯使用原始高維資料通常更能保留資訊因此-pca-沒有實際意義">B
+錯：使用原始高維資料通常更能保留資訊，因此 PCA 沒有實際意義</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>降維與過擬合控制</strong>，所以不能選。</p>
+<h3 id="c-錯pca-可讓-svm-自動適用於非線性nonlinear資料集">C 錯：PCA 可讓
+SVM 自動適用於非線性（Nonlinear）資料集</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>降維與過擬合控制</strong>，所以不能選。</p>
+<h3 id="d-對降維後可降低訓練時間並減少過擬合overfitting風險">D
+對：降維後可降低訓練時間並減少過擬合（Overfitting）風險</h3>
+<p>看到這個選項，要先抓它的核心：<strong>降維後可降低訓練時間並減少過擬合（Overfitting）風險</strong>。</p>
+<p>它正好對到題目要求的「降維與過擬合控制」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>進行影像分類任務時，研究團隊嘗試利用主成分分析（PrincipalComponentAnalysis,PCA）將輸入特徵從1024維降至100維，並將降維後的資料輸入支持向量機（SupportVectorMachine,SVM）模型進行訓練。關於此作法，下列哪一項描述最為合理？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>PCA
+可降維、減少訓練時間與過擬合，但不保證準確率提升。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>PCA（Principal Component Analysis）降維的主要好處是：(1)降低訓練時間；(2)減少過擬合風險
+ （Overfitting）；(3)去除噪音。但PCA保留的主成分不一定對分類最有用，且PCA是線性方法，無法
+ 讓SVM自動處理非線性資料。
+ 正確答案：降維後可降低訓練時間並減少過擬合（Overfitting）風險</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

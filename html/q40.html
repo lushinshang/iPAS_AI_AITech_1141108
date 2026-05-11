@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 40 題解析：生成模型差異</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 40 題解析：生成模型差異</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q39.html">上一題</a><a href="q41.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q40.png" alt="第 40 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-40-題解析生成模型差異">第 40 題解析：生成模型差異</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(A) VAE
+透過顯式潛在變數建模實現跨模態對齊，適合捕捉整體語意結構但生成解析度有限；
+GAN 透過對抗損失（Adversarial
+Loss）在不同模態間學習分佈映射，生成品質高但穩定性差；擴散
+模型則以條件化噪聲反推（Conditional
+Denoising）方式實現高保真跨模態生成，兼具穩定性與多樣 性</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>下列哪一項最正確地描述了 VAE（Variational Autoencoder）、GAN（Generative Adversarial
+ Network）與擴散模型（Diffusion Model）在多模態潛在空間對齊（Latent Alignment）與生成策略
+ 上的根本差異？
+     a. VAE 透過顯式潛在變數建模實現跨模態對齊，適合捕捉整體語意結構但生成解析度有
+        限；GAN 透過對抗損失（Adversarial Loss）在不同模態間學習分佈映射，生成品質高
+        但穩定性差；擴散模型則以條件化噪聲反推（Conditional Denoising）方式實現高保真
+        跨模態生成，兼具穩定性與多樣性
+     b. VAE 與 Diffusion Model 均屬隱式生成架構，主要依賴對抗式訓練實現跨模態對齊；GAN 則
+        以顯式後驗估計方式提升樣本一致性
+     c. VAE 與 GAN 均使用馬爾可夫鏈（Markov Chain）進行跨模態轉換；Diffusion Model 則透過
+        KL 散度最小化學習語意對應
+     d. 三者在多模態應用中皆依賴同一潛在表徵空間（Shared Latent Space），僅在解碼器結構不
+        同而已</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>生成模型差異</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>VAE、GAN、Diffusion 都能生成資料，但生成方式不同。</p>
+<p>題目說：</p>
+<blockquote>
+<p>下列哪一項最正確地描述了VAE（VariationalAutoencoder）、GAN（GenerativeAdversarialNetwork）與擴散模型（DiffusionModel）在多模態潛在空間對齊（LatentAlignment）與生成策略上的根本差異？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 2%" />
+<col style="width: 87%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「生成模型差異」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>VAE
+透過顯式潛在變數建模實現跨模態對齊，適合捕捉整體語意結構但生成解析度有限；
+GAN 透過對抗損失（Adversarial
+Loss）在不同模態間學習分佈映射，生成品質高但穩定性差；擴散
+模型則以條件化噪聲反推（Conditional
+Denoising）方式實現高保真跨模態生成，兼具穩定性與多樣 性</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>VAE 顯式潛在變數，GAN 對抗損失，Diffusion 條件去噪。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-a">解析：為什麼答案是 A</h2>
+<p>VAE 像先學一張潛在地圖再從地圖取樣；GAN
+像生成器和鑑別器互相對抗；Diffusion 像從雜訊一步步去噪成高品質結果。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>生成模型差異</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是 <strong>A</strong>，也就是：<strong>VAE
+透過顯式潛在變數建模實現跨模態對齊，適合捕捉整體語意結構但生成解析度有限；
+GAN 透過對抗損失（Adversarial
+Loss）在不同模態間學習分佈映射，生成品質高但穩定性差；擴散
+模型則以條件化噪聲反推（Conditional
+Denoising）方式實現高保真跨模態生成，兼具穩定性與多樣 性</strong>。</li>
+</ol>
+<p>這正是 <strong>A</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要把三者都當成同一種 shared latent
+space。考題常要你分清生成策略與穩定性差異。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3
+id="a-對vae-透過顯式潛在變數建模實現跨模態對齊適合捕捉整體語意結構但生成解析度有">A
+對：VAE
+透過顯式潛在變數建模實現跨模態對齊，適合捕捉整體語意結構但生成解析度有…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>VAE
+透過顯式潛在變數建模實現跨模態對齊，適合捕捉整體語意結構但生成解析度有限；
+GAN 透過對抗損失（Adversarial
+Loss）在不同模態間學習分佈映射，生成品質高但穩定性差；擴散
+模型則以條件化噪聲反推（Conditional
+Denoising）方式實現高保真跨模態生成，兼具穩定性與多樣 性</strong>。</p>
+<p>它正好對到題目要求的「生成模型差異」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="b-錯vae-與-diffusion-model-均屬隱式生成架構主要依賴對抗式訓">B
+錯：VAE 與 Diffusion Model 均屬隱式生成架構，主要依賴對抗式訓…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>生成模型差異</strong>，所以不能選。</p>
+<h3 id="c-錯vae-與-gan-均使用馬爾可夫鏈markov-chain進行跨模態轉換">C
+錯：VAE 與 GAN 均使用馬爾可夫鏈（Markov Chain）進行跨模態轉換…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>生成模型差異</strong>，所以不能選。</p>
+<h3
+id="d-錯三者在多模態應用中皆依賴同一潛在表徵空間shared-latent-spac">D
+錯：三者在多模態應用中皆依賴同一潛在表徵空間（Shared Latent Spac…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>生成模型差異</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>下列哪一項最正確地描述了VAE（VariationalAutoencoder）、GAN（GenerativeAdversarialNetwork）與擴散模型（DiffusionModel）在多模態潛在空間對齊（LatentAlignment）與生成策略上的根本差異？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>VAE 顯式潛在變數，GAN 對抗損失，Diffusion
+條件去噪。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>三種生成模型的差異：VAE透過顯式潛在變數建模，適合語意結構但解析度有限；GAN透過對抗損失
+ （Adversarial Loss）生成品質高但穩定性差；擴散模型（Diffusion Model）以條件化去噪實現高
+ 保真生成，兼具穩定性與多樣性。
+ 正確答案：VAE 透過顯式潛在變數建模實現跨模態對齊，適合捕捉整體語意結構但生成解析度有限；
+ GAN 透過對抗損失（Adversarial Loss）在不同模態間學習分佈映射，生成品質高但穩定性差；擴散
+ 模型則以條件化噪聲反推（Conditional Denoising）方式實現高保真跨模態生成，兼具穩定性與多樣
+ 性</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 24 題解析：對抗性攻擊防禦邊界</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 24 題解析：對抗性攻擊防禦邊界</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q23.html">上一題</a><a href="q25.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q24.png" alt="第 24 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-24-題解析對抗性攻擊防禦邊界">第 24
+題解析：對抗性攻擊防禦邊界</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(D)
+在模型部署環境中強化網路防火牆，以阻擋來自未授權來源的網路連線</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某金融機構的 AI 風控系統遭受對抗性攻擊，駭客透過對輸入特徵進行微小但惡意的擾動，成功欺騙了
+ 模型。為了從根本上解決模型自身對這類攻擊的脆弱性，下列何者並非針對此種攻擊型態的技術手
+ 段？
+     a. 強化資料前處理，用以過濾掉格式不符或數值極端異常的輸入
+     b. 在模型訓練階段導入對抗樣本訓練，以提升模型對惡意特徵擾動的辨識與防禦能力
+     c. 於推論後階段使用規則引擎，以確保模型的預測結果不違反既有的業務硬性規定
+     d. 在模型部署環境中強化網路防火牆，以阻擋來自未授權來源的網路連線</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>對抗性攻擊防禦邊界</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>對抗性攻擊是把輸入資料做很小但惡意的變動，讓模型判斷錯。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某金融機構的AI風控系統遭受對抗性攻擊，駭客透過對輸入特徵進行微小但惡意的擾動，成功欺騙了模型。為了從根本上解決模型自身對這類攻擊的脆弱性，下列何者並非針對此種攻擊型態的技術手段？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 57%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「對抗性攻擊防禦邊界」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>在模型部署環境中強化網路防火牆，以阻擋來自未授權來源的網路連線</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>微小輸入擾動是模型層問題，不是防火牆能根治。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-d">解析：為什麼答案是 D</h2>
+<p>這像把考卷上的字稍微改到人還看得懂、模型卻看錯。防火牆擋的是網路來源，不會修正模型對輸入擾動的脆弱性。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>對抗性攻擊防禦邊界</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>D</strong>，也就是：<strong>在模型部署環境中強化網路防火牆，以阻擋來自未授權來源的網路連線</strong>。</li>
+</ol>
+<p>這正是 <strong>D</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>題目問模型自身對擾動的防禦，不要選純網路安全措施。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯強化資料前處理用以過濾掉格式不符或數值極端異常的輸入">A
+錯：強化資料前處理，用以過濾掉格式不符或數值極端異常的輸入</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>對抗性攻擊防禦邊界</strong>，所以不能選。</p>
+<h3
+id="b-錯在模型訓練階段導入對抗樣本訓練以提升模型對惡意特徵擾動的辨識與防禦能力">B
+錯：在模型訓練階段導入對抗樣本訓練，以提升模型對惡意特徵擾動的辨識與防禦能力</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>對抗性攻擊防禦邊界</strong>，所以不能選。</p>
+<h3
+id="c-錯於推論後階段使用規則引擎以確保模型的預測結果不違反既有的業務硬性規定">C
+錯：於推論後階段使用規則引擎，以確保模型的預測結果不違反既有的業務硬性規定</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>對抗性攻擊防禦邊界</strong>，所以不能選。</p>
+<h3
+id="d-對在模型部署環境中強化網路防火牆以阻擋來自未授權來源的網路連線">D
+對：在模型部署環境中強化網路防火牆，以阻擋來自未授權來源的網路連線</h3>
+<p>看到這個選項，要先抓它的核心：<strong>在模型部署環境中強化網路防火牆，以阻擋來自未授權來源的網路連線</strong>。</p>
+<p>它正好對到題目要求的「對抗性攻擊防禦邊界」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某金融機構的AI風控系統遭受對抗性攻擊，駭客透過對輸入特徵進行微小但惡意的擾動，成功欺騙了模型。為了從根本上解決模型自身對這類攻擊的脆弱性，下列何者並非針對此種攻擊型態的技術手段？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>微小輸入擾動是模型層問題，不是防火牆能根治。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>對抗性攻擊（Adversarial Attack）是針對模型輸入的微小擾動。防禦技術包括：對抗訓練
+ （Adversarial Training）、輸入過濾、規則引擎驗證等。網路防火牆是網路安全措施，無法防禦已通
+ 過網路的對抗性輸入，不是針對此攻擊型態的技術手段。
+ 正確答案：在模型部署環境中強化網路防火牆，以阻擋來自未授權來源的網路連線</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

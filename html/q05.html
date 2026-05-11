@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 05 題解析：文字權重與長文本限制</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 05 題解析：文字權重與長文本限制</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q04.html">上一題</a><a href="q06.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q05.png" alt="第 05 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-05-題解析文字權重與長文本限制">第 05
+題解析：文字權重與長文本限制</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(A)
+長文本中的詞頻偏高，導致常見詞權重被過度放大</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某企業以詞頻–逆文件頻率（Term Frequency–Inverse Document Frequency, TF-IDF）方法分析顧客
+ 意見內容，但發現模型在處理篇幅較長的回饋文本時，無法準確反映關鍵詞的重要性。下列何者為造
+ 成此現象的主要原因？
+     a. 長文本中的詞頻偏高，導致常見詞權重被過度放大
+     b. 長文本中缺乏明確句子邊界，造成 TF-IDF 無法計算詞頻
+     c. TF-IDF 無法同時處理多份文件
+     d. 長文本會改變 IDF（Inverse Document Frequency）的計算，使所有詞權重趨於相近</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>文字權重與長文本限制</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>TF-IDF
+是在問：一個詞在這篇文章常不常出現，而且它在其他文章罕不罕見。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某企業以詞頻–逆文件頻率（TermFrequency–InverseDocumentFrequency,TF-IDF）方法分析顧客意見內容，但發現模型在處理篇幅較長的回饋文本時，無法準確反映關鍵詞的重要性。下列何者為造成此現象的主要原因？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 51%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「文字權重與長文本限制」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>長文本中的詞頻偏高，導致常見詞權重被過度放大</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>長文本常讓 TF 偏高；先想正規化或次線性縮放。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-a">解析：為什麼答案是 A</h2>
+<p>如果一篇顧客回饋很長，某些普通詞自然會出現很多次。這就像一個人講話很長，口頭禪也會被數到很多次，但口頭禪不一定是重點。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>文字權重與長文本限制</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>A</strong>，也就是：<strong>長文本中的詞頻偏高，導致常見詞權重被過度放大</strong>。</li>
+</ol>
+<p>這正是 <strong>A</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>看到長文本造成關鍵詞權重失準，要先想到 TF 被文本長度放大，而不是 IDF
+本身突然失效。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強 TF-IDF 的 TF
+端問題：長文本會讓詞頻變高，常見詞可能被放大，所以要想到正規化，而不是怪
+IDF 全部失效。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「文字權重與長文本限制」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>長文本常讓 TF 偏高；先想正規化或次線性縮放。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-對長文本中的詞頻偏高導致常見詞權重被過度放大">A
+對：長文本中的詞頻偏高，導致常見詞權重被過度放大</h3>
+<p>看到這個選項，要先抓它的核心：<strong>長文本中的詞頻偏高，導致常見詞權重被過度放大</strong>。</p>
+<p>它正好對到題目要求的「文字權重與長文本限制」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="b-錯長文本中缺乏明確句子邊界造成-tf-idf-無法計算詞頻">B
+錯：長文本中缺乏明確句子邊界，造成 TF-IDF 無法計算詞頻</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>文字權重與長文本限制</strong>，所以不能選。</p>
+<h3 id="c-錯tf-idf-無法同時處理多份文件">C 錯：TF-IDF
+無法同時處理多份文件</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>文字權重與長文本限制</strong>，所以不能選。</p>
+<h3 id="d-錯長文本會改變-idfinverse-document-frequency的">D
+錯：長文本會改變 IDF（Inverse Document Frequency）的…</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>文字權重與長文本限制</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某企業以詞頻–逆文件頻率（TermFrequency–InverseDocumentFrequency,TF-IDF）方法分析顧客意見內容，但發現模型在處理篇幅較長的回饋文本時，無法準確反映關鍵詞的重要性。下列何者為造成此現象的主要原因？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>長文本常讓 TF 偏高；先想正規化或次線性縮放。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>TF-IDF（Term Frequency-Inverse Document Frequency）中，詞頻（TF）會隨文本長度增加而
+ 偏高。在長文本中，即使是常見詞也會因出現次數多而獲得較高的TF值，導致權重被過度放大，無法
+ 準確反映關鍵詞的重要性。解決方法包括使用正規化或次線性TF縮放。
+ 正確答案：長文本中的詞頻偏高，導致常見詞權重被過度放大</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

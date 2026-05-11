@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 26 題解析：多重共線性與特徵選擇</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 26 題解析：多重共線性與特徵選擇</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q25.html">上一題</a><a href="q27.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q26.png" alt="第 26 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-26-題解析多重共線性與特徵選擇">第 26
+題解析：多重共線性與特徵選擇</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(D) 含 L1 正則化的 LASSO 迴歸模型</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>在房價預測任務中，若發現特徵如「房間數」與「坪數」存在高度多重共線性（Multicollinearity），
+ 為降低共線性對模型參數估計的負面影響，應優先選擇下列哪種模型？
+     a. 不受多重共線性影響的決策樹模型
+     b. 傳統線性迴歸模型，不含正則化項
+     c. 支持向量機搭配線性核函數
+     d. 含 L1 正則化的 LASSO 迴歸模型</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>多重共線性與特徵選擇</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>多重共線性是幾個特徵彼此太像，模型不知道該把功勞算給誰。</p>
+<p>題目說：</p>
+<blockquote>
+<p>在房價預測任務中，若發現特徵如「房間數」與「坪數」存在高度多重共線性（Multicollinearity），為降低共線性對模型參數估計的負面影響，應優先選擇下列哪種模型？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 52%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「多重共線性與特徵選擇」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>含 L1 正則化的 LASSO 迴歸模型</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>LASSO 的 L1 正則化可把部分係數壓成 0。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-d">解析：為什麼答案是 D</h2>
+<p>LASSO 的 L1
+正則化像整理書桌：把不重要或重複的東西直接清掉，讓部分係數變成 0。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>多重共線性與特徵選擇</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是 <strong>D</strong>，也就是：<strong>含 L1 正則化的 LASSO
+迴歸模型</strong>。</li>
+</ol>
+<p>這正是 <strong>D</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>決策樹不一定是本題最優先答案；題幹若問降低共線性對參數估計的影響，LASSO
+很常是關鍵。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強共線性處理：LASSO 的 L1 正則化會壓係數到
+0，因此能做特徵選擇。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「多重共線性與特徵選擇」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>LASSO 的 L1 正則化可把部分係數壓成 0。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯不受多重共線性影響的決策樹模型">A
+錯：不受多重共線性影響的決策樹模型</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>多重共線性與特徵選擇</strong>，所以不能選。</p>
+<h3 id="b-錯傳統線性迴歸模型不含正則化項">B
+錯：傳統線性迴歸模型，不含正則化項</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>多重共線性與特徵選擇</strong>，所以不能選。</p>
+<h3 id="c-錯支持向量機搭配線性核函數">C
+錯：支持向量機搭配線性核函數</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>多重共線性與特徵選擇</strong>，所以不能選。</p>
+<h3 id="d-對含-l1-正則化的-lasso-迴歸模型">D 對：含 L1 正則化的 LASSO
+迴歸模型</h3>
+<p>看到這個選項，要先抓它的核心：<strong>含 L1 正則化的 LASSO
+迴歸模型</strong>。</p>
+<p>它正好對到題目要求的「多重共線性與特徵選擇」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>在房價預測任務中，若發現特徵如「房間數」與「坪數」存在高度多重共線性（Multicollinearity），為降低共線性對模型參數估計的負面影響，應優先選擇下列哪種模型？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>LASSO 的 L1 正則化可把部分係數壓成 0。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>面對多重共線性（Multicollinearity）問題，LASSO（Least Absolute Shrinkage and Selection
+ Operator）迴歸含L1正則化，能將部分係數壓縮為零，自動進行特徵選擇，有效處理共線性。Ridge
+ （L2正則化）也能緩解共線性但不會產生稀疏解。
+ 正確答案：含 L1 正則化的 LASSO 迴歸模型</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

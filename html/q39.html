@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 39 題解析：時間序列殘差診斷</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 39 題解析：時間序列殘差診斷</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q38.html">上一題</a><a href="q40.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q39.png" alt="第 39 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-39-題解析時間序列殘差診斷">第 39
+題解析：時間序列殘差診斷</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(C) 模型存在配適不足（Underfitting）問題，需重新調整 p
+或 q 參數以捕捉時間依賴性</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某企業的資料科學團隊利用 ARIMA 模型（AutoRegressive Integrated Moving Average Model）預測
+ 每週產品銷售量。模型建立完成後，分析人員發現預測誤差隨時間呈現週期性波動，且自相關函數
+ （ACF）顯示殘差在多個時滯（Lag）上仍顯著不為零。根據上述現象，最合理的模型診斷結論為何？
+     a. 模型殘差符合白噪音（White Noise）假設，預測表現穩定
+     b. 模型殘差雖有輕微異常，但可視為隨機誤差忽略不計
+     c. 模型存在配適不足（Underfitting）問題，需重新調整 p 或 q 參數以捕捉時間依賴性
+     d. 殘差特性不影響預測結果，無須進一步修正</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>時間序列殘差診斷</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>ARIMA 做完預測後，殘差應該像沒有規律的雜訊。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某企業的資料科學團隊利用ARIMA模型（AutoRegressiveIntegratedMovingAverageModel）預測每週產品銷售量。模型建立完成後，分析人員發現預測誤差隨時間呈現週期性波動，且自相關函數（ACF）顯示殘差在多個時滯（Lag）上仍顯著不為零。根據上述現象，最合理的模型診斷？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 67%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「時間序列殘差診斷」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>模型存在配適不足（Underfitting）問題，需重新調整 p 或 q
+參數以捕捉時間依賴性</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>ARIMA 殘差應像白噪音；ACF 顯著代表配適不足。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-c">解析：為什麼答案是 C</h2>
+<p>如果殘差還有週期性，ACF
+也顯著，代表模型漏掉了時間依賴，還沒學乾淨。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>時間序列殘差診斷</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>C</strong>，也就是：<strong>模型存在配適不足（Underfitting）問題，需重新調整
+p 或 q 參數以捕捉時間依賴性</strong>。</li>
+</ol>
+<p>這正是 <strong>C</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要把殘差規律當成可忽略的隨機誤差；它是模型配適不足的警訊。</p>
+<h2 id="錯題觀念加強">錯題觀念加強</h2>
+<p>這題是你本次答錯的題目，請不要只記答案，要補這個觀念：</p>
+<p>補強 ARIMA 殘差診斷：殘差還有 ACF 顯著，表示模型沒抓完時間依賴，是
+underfitting。</p>
+<p>下次看到類似題目，先問自己一句：</p>
+<blockquote>
+<p>這題是在考「時間序列殘差診斷」，還是在用相近名詞干擾我？</p>
+</blockquote>
+<p>快速反應口訣：</p>
+<p><strong>ARIMA 殘差應像白噪音；ACF 顯著代表配適不足。</strong></p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯模型殘差符合白噪音white-noise假設預測表現穩定">A
+錯：模型殘差符合白噪音（White Noise）假設，預測表現穩定</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>時間序列殘差診斷</strong>，所以不能選。</p>
+<h3 id="b-錯模型殘差雖有輕微異常但可視為隨機誤差忽略不計">B
+錯：模型殘差雖有輕微異常，但可視為隨機誤差忽略不計</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>時間序列殘差診斷</strong>，所以不能選。</p>
+<h3 id="c-對模型存在配適不足underfitting問題需重新調整-p-或-q-參數">C
+對：模型存在配適不足（Underfitting）問題，需重新調整 p 或 q 參數…</h3>
+<p>看到這個選項，要先抓它的核心：<strong>模型存在配適不足（Underfitting）問題，需重新調整
+p 或 q 參數以捕捉時間依賴性</strong>。</p>
+<p>它正好對到題目要求的「時間序列殘差診斷」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="d-錯殘差特性不影響預測結果無須進一步修正">D
+錯：殘差特性不影響預測結果，無須進一步修正</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>時間序列殘差診斷</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某企業的資料科學團隊利用ARIMA模型（AutoRegressiveIntegratedMovingAverageModel）預測每週產品銷售量。模型建立完成後，分析人員發現預測誤差隨時間呈現週期性波動，且自相關函數（ACF）顯示殘差在多個時滯（Lag）上仍顯著不為零。根據上述現象，最合理的模型診斷？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>ARIMA 殘差應像白噪音；ACF 顯著代表配適不足。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>ARIMA模型的殘差應為白噪音（White Noise），即ACF（Autocorrelation Function）在各時滯上
+ 不顯著。若殘差ACF在多個時滯上顯著不為零，表示模型配適不足（Underfitting），未能完全捕捉時
+ 間依賴性，需調整p或q參數。
+ 正確答案：模型存在配適不足（Underfitting）問題，需重新調整 p 或 q 參數以捕捉時間依賴性</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>

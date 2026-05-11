@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 12 題解析：PCA 與多重共線性</title>
+  <style>
+:root {
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d8e0ec;
+  --paper: #ffffff;
+  --bg: #f5f7fb;
+  --blue: #174ea6;
+  --yellow: #ffea00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+  line-height: 1.72;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 36px 22px 64px; }
+.topbar {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+.eyebrow { color: var(--muted); font-size: 15px; font-weight: 700; }
+h1 { margin: 4px 0 0; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.summary { color: var(--muted); margin: 10px 0 0; }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.nav a {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+.hero-img, .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.article h1 { font-size: 30px; margin-top: 0; }
+.article h2 {
+  font-size: 23px;
+  margin-top: 34px;
+  border-left: 8px solid var(--blue);
+  padding-left: 12px;
+}
+.article h3 { font-size: 20px; margin-top: 28px; }
+.article code { background: #eef3ff; padding: 2px 5px; border-radius: 4px; }
+.article pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  color: #f8fafc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.article pre code { background: transparent; padding: 0; }
+.article blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 8px solid #d97706;
+  background: #fff7df;
+}
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.article th, .article td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.article th { background: #eaf2ff; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 12px 14px 14px; }
+.q-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.q-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.status {
+  display: inline-block;
+  background: var(--yellow);
+  color: #111;
+  border: 1px solid #111;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+@media (min-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+  .image-panel { position: sticky; top: 18px; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">114 年第二梯次 L21 科目一</div>
+        <h1>第 12 題解析：PCA 與多重共線性</h1>
+      </div>
+      <nav class="nav"><a href="../index.html">目錄</a><a href="q11.html">上一題</a><a href="q13.html">下一題</a></nav>
+    </header>
+    <section class="layout">
+      <aside class="panel image-panel">
+        <img class="hero-img" src="../imagegen_compressed/q12.png" alt="第 12 題教學記憶圖">
+      </aside>
+      <article class="panel article">
+      <h1 id="第-12-題解析pca-與多重共線性">第 12 題解析：PCA
+與多重共線性</h1>
+<p><em>思維路由：李宏毅的直覺映射 + 蔡炎龍的 0 基礎同理心 +
+蔡宗翰的考場劇本化。</em></p>
+<p>答案：<strong>(B)
+使用主成分分析（PCA）將相關特徵轉換為彼此獨立的主成分</strong></p>
+<h2 id="題目">題目</h2>
+<pre class="text"><code>某金融科技公司建立房價預測模型，使用多項特徵（如建坪、房齡、樓層、總價等）進行線性迴歸分
+ 析（Linear Regression Analysis）。資料分析師發現多個特徵之間存在高度相關性，導致模型係數不
+ 穩定、預測誤差上升。為解決此問題，下列哪一種方法最適合？
+     a. 繼續保留所有特徵，不進行任何處理
+     b. 使用主成分分析（PCA）將相關特徵轉換為彼此獨立的主成分
+     c. 新增更多原始變數以提升模型表現
+     d. 改用分類模型進行預測</code></pre>
+<h2 id="解析題目在問什麼">解析：題目在問什麼</h2>
+<p>這題不是考你會不會背名詞，而是在考你能不能看懂題目裡的「任務」。</p>
+<p>本題的任務是：</p>
+<p><strong>PCA 與多重共線性</strong></p>
+<p>先用 0 基礎的方式理解：</p>
+<p>多重共線性是特徵彼此太像，讓線性模型的係數不穩。</p>
+<p>題目說：</p>
+<blockquote>
+<p>某金融科技公司建立房價預測模型，使用多項特徵（如建坪、房齡、樓層、總價等）進行線性迴歸分析（LinearRegressionAnalysis）。資料分析師發現多個特徵之間存在高度相關性，導致模型係數不穩定、預測誤差上升。為解決此問題，下列哪一種方法最適合？</p>
+</blockquote>
+<p>所以解題時要把題目翻成這張表：</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 54%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th>看見的線索</th>
+<th>你要翻成的白話</th>
+<th>考場動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>題目核心</td>
+<td>這題在考「PCA 與多重共線性」</td>
+<td>不要先背名詞，先找題目要解決的問題</td>
+</tr>
+<tr>
+<td>正確答案</td>
+<td>使用主成分分析（PCA）將相關特徵轉換為彼此獨立的主成分</td>
+<td>選能直接完成題幹任務的選項</td>
+</tr>
+<tr>
+<td>秒殺口訣</td>
+<td>特徵高度相關時，可用 PCA 轉成彼此獨立的主成分。</td>
+<td>用這句話排除看似相關但方向不對的選項</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析為什麼答案是-b">解析：為什麼答案是 B</h2>
+<p>PCA
+像把很多方向重疊的尺，重新整理成幾把彼此垂直的主尺，讓資訊不再互相打架。</p>
+<p>所以正確判斷應該是：</p>
+<ol type="1">
+<li>先抓題目要解決的是 <strong>PCA 與多重共線性</strong>。</li>
+<li>再找哪個選項最直接對到這件事。</li>
+<li>正確選項是
+<strong>B</strong>，也就是：<strong>使用主成分分析（PCA）將相關特徵轉換為彼此獨立的主成分</strong>。</li>
+</ol>
+<p>這正是 <strong>B</strong>。</p>
+<h2 id="初學者最容易踩的坑">初學者最容易踩的坑</h2>
+<p>不要以為保留所有原始特徵一定最好。高度相關時，轉成主成分反而能讓模型更穩。</p>
+<h2 id="選項快速判斷">選項快速判斷</h2>
+<h3 id="a-錯繼續保留所有特徵不進行任何處理">A
+錯：繼續保留所有特徵，不進行任何處理</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>PCA 與多重共線性</strong>，所以不能選。</p>
+<h3 id="b-對使用主成分分析pca將相關特徵轉換為彼此獨立的主成分">B
+對：使用主成分分析（PCA）將相關特徵轉換為彼此獨立的主成分</h3>
+<p>看到這個選項，要先抓它的核心：<strong>使用主成分分析（PCA）將相關特徵轉換為彼此獨立的主成分</strong>。</p>
+<p>它正好對到題目要求的「PCA
+與多重共線性」，不是只沾到相關名詞，而是直接回答題目要你判斷的那件事。</p>
+<h3 id="c-錯新增更多原始變數以提升模型表現">C
+錯：新增更多原始變數以提升模型表現</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>PCA 與多重共線性</strong>，所以不能選。</p>
+<h3 id="d-錯改用分類模型進行預測">D 錯：改用分類模型進行預測</h3>
+<p>把這個選項放回題幹測試，會發現它沒有真正處理題目指定的任務。</p>
+<p>它可能是相關技術、相關指標或聽起來合理的做法，但本題要抓的是
+<strong>PCA 與多重共線性</strong>，所以不能選。</p>
+<h2 id="考場秒殺法">考場秒殺法</h2>
+<p>看到題目關鍵字：</p>
+<blockquote>
+<p>某金融科技公司建立房價預測模型，使用多項特徵（如建坪、房齡、樓層、總價等）進行線性迴歸分析（LinearRegressionAnalysis）。資料分析師發現多個特徵之間存在高度相關性，導致模型係數不穩定、預測誤差上升。為解決此問題，下列哪一種方法最適合？</p>
+</blockquote>
+<p>就要想到：</p>
+<p><strong>特徵高度相關時，可用 PCA 轉成彼此獨立的主成分。</strong></p>
+<h2 id="來源解析整理">來源解析整理</h2>
+<pre class="text"><code>當特徵間存在多重共線性（Multicollinearity）時，會導致迴歸係數不穩定。PCA（Principal
+ Component Analysis，主成分分析）能將相關特徵轉換為彼此獨立的主成分，消除共線性問題。其
+ 他解決方法還包括Ridge迴歸（L2正則化）或移除高度相關的特徵。
+ 正確答案：使用主成分分析（PCA）將相關特徵轉換為彼此獨立的主成分</code></pre>
+
+      </article>
+    </section>
+  </main>
+</body>
+</html>
